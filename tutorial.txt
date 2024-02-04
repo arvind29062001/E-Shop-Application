@@ -1,0 +1,161 @@
+django-admin startproject Eshop 
+you cannot run project directly u need to create an app for it.
+django-admin startapp 
+
+database used => db.sqlite3
+
+before creating superusers you need database tables 
+=> py manage.py makemigrations 
+=> py manage.py migrate 
+
+now py manage.py createsuperuser
+
+
+models: are basically subclass of Model class which is present in models module.
+class Product(models.Model):
+      defination  ....                     (attributes are by default not null) also django provides primary key 
+
+
+
+on creating models you need to create tables in the database => py manage.py makemigrations no changes detected because you need to update info in
+__init__.py file
+
+Also changes won't be detected if the app is not registered in the Installed_APP section of settings.py part of Eshop Project 
+
+to show your models in admin panel you need to register your models in the admin.py(of app) file first 
+
+you need to generate a url to view the uploaded images 
+if you directly try to view your images using {{product.images}} it will give error so need to use url 
+In Eshop project's settings.py, u add MEDIA_ROOT and MEDIA_URL .
+MEDIA_URL will basically  hide actual folder location where the uploaded file is stored.
+MEDIA_ROOT represents the folder from which the images are uploaded. 
+
+
+when a user is logged in only logout will be visible, when logged out both options => signup and signin will be visible.
+
+you bring data from backend(models) to the template via the views function which renders the template along with dictionary(containing data)
+can show data on template using template language. 
+
+If you want to bring products related to a particular category from backend to the frontend, you will pass category id to the server, server will
+check the category id and return products related to that particular id from the backend ( filtering )
+
+A query string : A query string is a set of characters tacked onto the end of a URL.
+The query string begins after the question mark (?) and can include one or more parameters. 
+Each parameter is represented by a unique key-value pair or a set of two linked data items. 
+An equals sign (=) separates each key and value.
+
+ <a href="/?category={{category.id}}" class="list-group-item list-group-item-action">{{category}}</a>
+
+ here if I have used a ? it is not a url it is a query.
+
+understand get request , parameters are visible in the url, 
+get request is used to get request from the server
+
+csrf (cross site request forgery) attack
+attacker will send you a link containing his information like name, account no, ifsc code. If you click on that link, your cookies will be 
+utilised to access bank website and will make transactions as u are authenticated user for that session.
+
+solution => csrf token => for each user request,django will create a url string containing a token which depends on previous token. 
+but this will slow down the process if for each request, new token is generated so 
+django generates a single token for a single session.
+
+
+
+
+
+{% csrf_token %} is a template tag that inserts a hidden input field with the CSRF token value into your form.
+
+method="post" specifies that the form should be submitted using the HTTP POST method.
+
+action="{% url 'your_view_name' %}" sets the form action to the URL of the view where the form data will be submitted.
+
+Make sure to include {% csrf_token %} inside your form tag for any form that performs a POST request. 
+If you omit the CSRF token, Django will raise a CSRF token missing or incorrect error when you try to submit the form.
+
+
+
+you run py  manage.py  make_migrations only when you create tables or make changes to the database.
+
+
+the models that we create in django are not at database level. this means the models cannot be used for authentication( can be used in django admin
+and in forms created using django api )
+forms can be created from django using django form api, but we are not doing that here.
+
+remember we can name a url in urls.py. This will be helpful when you redirect to some web page. 
+
+for our application, emails of customers should be unique. 
+
+We have also done password hashing here( as if password is not hashed, actual password will be visible to the admin )
+
+
+when you click Login button on homepage, you make a get request and login form is served,
+
+when you fill your details and click submit button, your details are sent to the server via post request.
+
+ @staticmethod
+    def get_customer_by_email(email):
+        return Customer.objects.get(email=email)  or   Customer.objects.filter(email=email) 
+
+        but filter will return a list of objects but get will always return a single object.
+
+
+
+
+get method either returns an error or object so if you want to escape the error you can use try and except 
+
+
+till now we worked with function based view now we are working with class based view. 
+
+from django.views import View => this is class for which we create subclass  to get class based views 
+
+django will automatically decide method is get or post and accordingly function will be executed in class 
+
+so signup class has all methods related to signup, signin class has all methods related to signin...
+
+
+session is implemented at the top of cookies.Cookies are stored at your browser. whenever you again visit the same site again,the cookies
+will go with the request. Once the session ends, the cookies expire.
+
+say you have visited a website, if you delete cookies, all your data with the server will be removed including session id and new session will
+be created 
+
+django stores session data in the database and session id and session data is stored in hashed form 
+
+request.session['customer']=customer  => here if password matches , I will store cutomer object in session 
+
+only json serialisable objects can be stored in session 
+
+In this project, cart is managed using session. 
+
+whenever you send a post request, you need a csrf token. 
+
+for cart implementation, I need to know which product I have clicked to add it to the cart.
+
+filters are very useful in case when you want to perform certain functions in html file 
+
+you can navigate within the same page using id ()
+
+
+in template u can access cart using request.session.cart but in python file you can access using request.session.get('cart')
+
+
+if customer is not logged in and we try to get the orders, we will get errors, to handle this, we use middlewares.
+In Django, middleware is a way to process requests and responses globally before they reach the view or after they leave the view. 
+
+middleware is like a guard on a gate, say if some one unauthorised(not logged in ) tries to access the web page,middleware will return them 
+while if they  are authorised, it will allow them to access.
+
+so here I have written my middleware for authorization.
+
+
+suppose if you have logged out and you try to access the orders page, it will take you to login page( because of middleware ) 
+now if you login to the web page it should take you to orders page and not to home page this is achieved using return url.
+
+
+
+
+
+
+
+
+
